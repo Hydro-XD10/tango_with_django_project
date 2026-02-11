@@ -7,10 +7,11 @@ class CategoryForm(forms.ModelForm):
                            help_text="Please enter the category name.")
     views = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
     likes = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
-    slug=forms.CharField(widget=forms.HiddenInput(),required=False)
+    slug = forms.CharField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = Category
-        fields = ('name',)
+        fields = ('name', 'views', 'likes', 'slug',)
 
 
 class PageForm(forms.ModelForm):
@@ -20,18 +21,16 @@ class PageForm(forms.ModelForm):
                          help_text="Please enter the URL of the page.")
     views = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
 
+    class Meta:
+        model = Page
+        exclude = ('category',)
+
     def clean(self):
-        cleaned_data = super().clean()
+        cleaned_data = self.cleaned_data
         url = cleaned_data.get('url')
 
-        # if url is not empty and doesn't start with 'http://',
-        # then prepend 'http://'.
         if url and not url.startswith('http://'):
             url = f'http://{url}'
             cleaned_data['url'] = url
 
         return cleaned_data
-
-    class Meta:
-        model = Page
-        exclude = ('category',)
